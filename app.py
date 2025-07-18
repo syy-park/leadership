@@ -45,7 +45,7 @@ SYSTEM_INSTRUCTION = """
 try:
     # GenerativeModel 객체 생성 (제공된 예시와 동일한 파라미터 사용)
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.5-flash",
         system_instruction=SYSTEM_INSTRUCTION,
         generation_config=generation_config,
     )
