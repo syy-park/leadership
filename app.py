@@ -3,12 +3,12 @@ import google.generativeai as genai
 
 # --- 1. 페이지 설정 및 제목 ---
 st.set_page_config(
-    page_title="AI 리더십 특성 3줄 요약기",
+    page_title="AI 리더십 특성 상세 요약기",
     page_icon="👨‍💼",
     layout="wide",
 )
-st.title("👨‍💼 AI 리더십 특성 3줄 요약")
-st.caption("리더의 강점과 약점에 대한 의견을 입력하면, Gemini AI가 핵심 특성을 3줄로 요약합니다.")
+st.title("👨‍💼 AI 리더십 특성 상세 요약")
+st.caption("리더의 강점과 약점 의견을 바탕으로, 강점에 더 비중을 둔 상세 프로필을 3줄로 생성합니다.")
 
 
 # --- 2. Gemini API 설정 ---
@@ -23,23 +23,22 @@ except Exception as e:
     st.error(f"API 키 설정 중 오류가 발생했습니다: {e}")
     st.stop() # API 키 설정 실패 시 앱 실행 중지
 
-# --- 3. 모델 및 프롬프트 설정 ---
+# --- 3. 모델 및 프롬프트 설정 (핵심 수정 부분) ---
 # API 요청에 사용할 설정값 (제공된 예시와 동일하게)
 generation_config = genai.GenerationConfig(
     temperature=0.7,
 )
 
-# AI의 역할을 정의하는 시스템 명령어
+# AI의 역할을 정의하는 시스템 명령어 (요구사항에 맞춰 전면 수정)
 SYSTEM_INSTRUCTION = """
-당신은 리더십을 정확하고 간결하게 분석하는 전문가입니다.
-사용자가 리더의 강점과 약점에 대한 의견을 전달하면, 아래의 규칙에 따라 리더십 특성을 3줄로 요약해야 합니다.
+당신은 리더십을 깊이 있고 설득력 있게 분석하는 HR 전문가입니다.
+사용자가 리더의 강점과 약점에 대한 의견을 전달하면, 아래의 '요약 규칙'을 반드시 준수하여 리더십 특성을 3줄로 요약해야 합니다.
 
 **[요약 규칙]**
-1.  결과는 반드시 3개의 문장으로만 구성해야 합니다.
-2.  각 문장은 12단어 이하의 간결한 문장이어야 합니다.
-3.  각 문장의 끝은 반드시 '~함' 또는 '~임'으로 끝나야 합니다.
-4.  첫 번째 문장은 강점, 두 번째 문장은 약점, 세 번째 문장은 종합 평가를 담아야 합니다.
-5.  규칙 설명이나 다른 불필요한 말 없이, 요약된 3줄의 문장만 출력해야 합니다.
+1.  요약은 강점에 80%, 약점에 20%의 비중을 두어야 합니다. 따라서, **첫 두 문장은 강점에 대해 구체적으로 서술**하고, **마지막 한 문장은 개선이 필요한 약점을 간략히 언급**해야 합니다.
+2.  각 문장은 **15에서 25단어 사이의 길이**로, 이전보다 더 상세하고 풍부한 내용을 담아야 합니다.
+3.  각 문장의 끝은 반드시 '~함' 또는 '~임'으로 자연스럽게 끝나야 합니다.
+4.  결과는 반드시 3개의 문장으로만 구성해야 하며, 규칙 설명이나 다른 불필요한 말 없이 요약된 3줄의 문장만 즉시 출력해야 합니다.
 """
 
 try:
@@ -58,14 +57,14 @@ except Exception as e:
 st.write("") # 여백
 col1, col2 = st.columns(2)
 with col1:
-    strengths_input = st.text_area("👍 **강점** 또는 **칭찬할 점**을 상세히 입력하세요.", placeholder="예: 팀원들의 의견을 항상 경청하고 존중하며, 명확한 비전과 방향성을 제시해줍니다. 위기 상황에서도 침착하게 팀을 이끌어 신뢰를 줍니다.", height=200)
+    strengths_input = st.text_area("👍 **강점** 또는 **칭찬할 점**을 상세히 입력하세요.", placeholder="예: 팀원들의 의견을 항상 경청하고 존중하며, 명확한 비전과 방향성을 제시해줍니다. 위기 상황에서도 침착하게 팀을 이끌어 신뢰를 줍니다. 데이터 기반의 논리적인 의사결정 능력이 탁월합니다.", height=200)
 
 with col2:
     weaknesses_input = st.text_area("👎 **약점** 또는 **개선점**을 상세히 입력하세요.", placeholder="예: 때로는 업무 위임보다 직접 모든 것을 처리하려는 경향이 있어 팀원들의 성장을 저해할 수 있습니다. 결정된 사항에 대한 피드백이 조금 더 빠르면 좋겠습니다.", height=200)
 
 
 # --- 5. 요약 생성 버튼 및 API 호출 ---
-if st.button("✨ AI로 요약 생성하기", type="primary"):
+if st.button("✨ AI로 상세 프로필 생성하기", type="primary"):
     # 입력 값 검증
     if not strengths_input.strip() or not weaknesses_input.strip():
         st.warning("❗ 강점과 약점 내용을 모두 입력해야 분석할 수 있습니다.")
@@ -79,7 +78,7 @@ if st.button("✨ AI로 요약 생성하기", type="primary"):
         {weaknesses_input}
         """
         
-        with st.spinner("Gemini가 리더십 특성을 분석하고 있습니다..."):
+        with st.spinner("Gemini가 리더십 특성을 심층 분석하고 있습니다..."):
             try:
                 # 스트리밍 방식으로 API 호출 (제공된 예시와 동일한 메소드 사용)
                 response_stream = model.generate_content(
@@ -88,7 +87,7 @@ if st.button("✨ AI로 요약 생성하기", type="primary"):
                 )
 
                 st.write("---")
-                st.subheader("🤖 Gemini 요약 결과")
+                st.subheader("🤖 Gemini 리더십 프로필 요약")
                 
                 # 스트림으로 들어오는 결과를 실시간으로 화면에 출력
                 st.write_stream(chunk.text for chunk in response_stream)
