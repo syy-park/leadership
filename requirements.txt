@@ -1,4 +1,4 @@
 streamlit
 konlpy
 pandas
-google-genal
+google-generativeai
